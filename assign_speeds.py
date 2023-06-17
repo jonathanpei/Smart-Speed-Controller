@@ -2,6 +2,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import unicodedata
 import pickle
 import textstat
+import json
 sample_script = 0
 
 with open('transcript.txt', 'rb') as f:
@@ -61,3 +62,8 @@ def get_speeds_timestamped(transcript):
         speed = calc_speed(line)
         speeds.append({'start': line['start'], 'end': line['end'], 'speed': speed})
     return speeds
+
+x = json.dumps(get_speeds_timestamped(sample_script), indent = 2, ensure_ascii=False)
+print(x)
+with open('transcript_json.json', 'wb') as f:
+    pickle.dump(get_speeds_timestamped(sample_script),f)
