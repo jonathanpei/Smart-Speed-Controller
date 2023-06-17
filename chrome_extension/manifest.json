@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Speed Watch",
+    "version": "1.0",
+    "description": "Dynamically update video viewing speed based on the content",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "tabs"
+    ],
+    "content_scripts": [
+        {
+          "js": ["scripts/content.js"],
+          "matches": [
+            "https://www.youtube.com/watch*"
+          ],
+          "run_at": "document_end"
+        }
+      ],
+      "action": {
+        "default_popup": "index.html"
+      }
+      
+  }
