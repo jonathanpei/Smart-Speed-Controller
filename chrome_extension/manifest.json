@@ -18,8 +18,9 @@
           "run_at": "document_end"
         }
       ],
+      
       "action": {
-        "default_popup": "index.html"
+        "default_popup": "popup.html"
       }
       
   }

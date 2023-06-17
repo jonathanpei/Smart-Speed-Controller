@@ -1,3 +1,4 @@
+var dynamicViewingOn = true;
 transcript = [
     {
       "start": 1.02,
@@ -154,25 +155,66 @@ transcript = [
       "end": 363.36,
       "speed": 3.268921513934474
     }
-  ];
+];
 
+var interval = null; 
+var flag = false;
+
+function startLoop(){
+    if(flag == false){
+        flag = true;
+        var vid = document.getElementsByTagName('video')[0];
+        var ytplayer = document.getElementsByClassName('video-stream')[0];
+        var time = ytplayer.currentTime;
+
+        curLine = 0;
+
+        for(var i = 0; i<transcript.length; i++){
+            if(transcript[i]["start"] <= time && transcript[i]["end"] >= time){
+                curLine = i;
+                break;
+            }
+        }
+
+        interval = setInterval(function(){
+            if(dynamicViewingOn){
+                
+        
+                time = ytplayer.currentTime;
+                if(time > transcript[curLine]['start']){
+                    vid.playbackRate = transcript[curLine]['speed'];
+                }
+                if(time > transcript[curLine]['end']){
+                    if(curLine < transcript.length - 1) curLine++;
+                }
+                if(time < transcript[curLine]['start']){
+                    if(curLine > 0) curLine--;     
+                }
+            }
+        }, 100);
+    }
+}
+function endLoop(){
+    if(flag == true){
+        clearInterval(interval);
+        flag = false;
+        var vid = document.getElementsByTagName('video')[0];
+        var ytplayer = document.getElementsByClassName('video-stream')[0];
+        vid.playbackRate = 1;
+    }
+}
 curLine = 0
 
-var timeLoopset = setInterval(function(){
 
-    var vid = document.getElementsByTagName('video')[0];
-    var ytplayer = document.getElementsByClassName('video-stream')[0];
-
-    var time =ytplayer.currentTime;
-    if(time > transcript[curLine]['start']){
-        vid.playbackRate = transcript[curLine]['speed'];
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if( request.message === "start" ) {
+            startLoop();
+        }
+        if( request.message === "end" ) {
+            endLoop();
+        }
     }
-    if(time > transcript[curLine]['end']){
-        if(curLine < transcript.length - 1) curLine++;
-    }
-    
-}, 100);
-
-
+);
 
 console.log("in content script");
