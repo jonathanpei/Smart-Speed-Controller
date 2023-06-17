@@ -63,7 +63,3 @@ def get_speeds_timestamped(transcript):
         speeds.append({'start': line['start'], 'end': line['end'], 'speed': speed})
     return speeds
 
-x = json.dumps(get_speeds_timestamped(sample_script), indent = 2, ensure_ascii=False)
-print(x)
-with open('transcript_json.json', 'wb') as f:
-    pickle.dump(get_speeds_timestamped(sample_script),f)
