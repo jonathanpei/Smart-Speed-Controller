@@ -161,6 +161,7 @@ var interval = null;
 var flag = false;
 
 function startLoop(){
+    
     if(flag == false){
         flag = true;
         var vid = document.getElementsByTagName('video')[0];
