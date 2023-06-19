@@ -1,1 +1,4 @@
+Flask==2.0.3
+numpy==1.24.0
+textstat==0.7.3
 youtube_transcript_api==0.6.1
