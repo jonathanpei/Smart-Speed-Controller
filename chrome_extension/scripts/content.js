@@ -2,16 +2,18 @@ var transcript = "";
 var interval = null; 
 var flag = false;
 var loaded = false;
-
+var multiplier = 1;
 document.body.addEventListener("yt-navigate-finish", function(event) {
     endLoop();
     flag = false;
     loaded = false;
     interval = null;
+    multiplier = 1;
     transcript = "";
 });
 
 function getTranscript(){   
+    console.log("here");
     let url = document.location.href;
     
     var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -24,7 +26,7 @@ function getTranscript(){
         transcript = JSON.parse(this.responseText);
         console.log(transcript);
     }
-    xhttp.open("GET", "http://127.0.0.1:5000/?video_id=" + video_id);
+    xhttp.open("GET", "https://speedwatch.jonathanpei1.repl.co/video?video_id=" + video_id);
     xhttp.send();
 
 }
@@ -51,7 +53,7 @@ function startLoop(){
             
             time = ytplayer.currentTime;
             if(time > transcript[curLine]['start']){
-                vid.playbackRate = transcript[curLine]['speed'];
+                vid.playbackRate = transcript[curLine]['speed'] * multiplier;
             }
             if(time > transcript[curLine]['end']){
                 if(curLine < transcript.length - 1) curLine++;
@@ -100,6 +102,15 @@ chrome.runtime.onMessage.addListener(
             }
             else endLoop();
         }
+        if( request.message === "speedUpdate" ) {
+            multiplier += request.speed;
+            multiplier = Math.round(multiplier * 100) / 100
+            chrome.runtime.sendMessage({
+                message: "updateSpeedText", 
+                speed: multiplier
+            });
+        }
+
     }
 );
 
