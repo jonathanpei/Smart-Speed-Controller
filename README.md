@@ -1,2 +1,2 @@
 # SpeedWatch
- A chrome extension to watch videos faster with understanding
+ A chrome extension that dynamically changes the playback speed based on what is being said.
