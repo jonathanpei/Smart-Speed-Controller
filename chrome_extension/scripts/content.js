@@ -3,6 +3,8 @@ var interval = null;
 var flag = false;
 var loaded = false;
 var multiplier = 1;
+var speedText = document.createElement('h2');
+speedText.id = "speedLabel";
 document.body.addEventListener("yt-navigate-finish", function(event) {
     endLoop();
     flag = false;
@@ -34,7 +36,7 @@ function getTranscript(){
 
 function startLoop(){
     if(flag == false){
-        console.log("what????");
+        document.getElementById("actions-inner").append(speedText);
         flag = true;
         var vid = document.getElementsByTagName('video')[0];
         var ytplayer = document.getElementsByClassName('video-stream')[0];
@@ -54,6 +56,7 @@ function startLoop(){
             time = ytplayer.currentTime;
             if(time > transcript[curLine]['start']){
                 vid.playbackRate = transcript[curLine]['speed'] * multiplier;
+                document.getElementById("speedLabel").innerHTML ="The current speed is "+ vid.playbackRate;
             }
             if(time > transcript[curLine]['end']){
                 if(curLine < transcript.length - 1) curLine++;

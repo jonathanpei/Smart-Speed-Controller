@@ -4,7 +4,7 @@ import textstat
 import numpy as np
 
 
-#segment into approx. 10 second clips
+#segment into approx. 5 second clips
 def segment(transcript):
 
     combined_lines = []
