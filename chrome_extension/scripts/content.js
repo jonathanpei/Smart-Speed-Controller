@@ -10,7 +10,6 @@ document.body.addEventListener("yt-navigate-finish", function(event) {
     waitForVideo().then(()=>{
         vid = document.getElementsByTagName('video')[0];
         vid.addEventListener('play', function(e) {
-            console.log(flag);
             if(flag == true){
                 startLoop();
             }
