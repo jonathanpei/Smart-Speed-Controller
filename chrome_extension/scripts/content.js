@@ -4,9 +4,26 @@ var flag = false;
 var loaded = false;
 var multiplier = 1;
 var speedText = document.createElement('h2');
+var vid;
 speedText.id = "speedLabel";
 document.body.addEventListener("yt-navigate-finish", function(event) {
+    waitForVideo().then(()=>{
+        vid = document.getElementsByTagName('video')[0];
+        vid.addEventListener('play', function(e) {
+            console.log(flag);
+            if(flag == true){
+                startLoop();
+            }
+        });
+        vid.addEventListener('pause', function(e) {
+            endLoop();
+        });
+        vid.addEventListener('ended', function(e) {
+            endLoop();
+        });
+    });
     endLoop();
+
     flag = false;
     loaded = false;
     interval = null;
@@ -15,7 +32,6 @@ document.body.addEventListener("yt-navigate-finish", function(event) {
 });
 
 function getTranscript(){   
-    console.log("here");
     let url = document.location.href;
     
     var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -26,7 +42,6 @@ function getTranscript(){
     const xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         transcript = JSON.parse(this.responseText);
-        console.log(transcript);
     }
     xhttp.open("GET", "https://speedwatch.jonathanpei1.repl.co/video?video_id=" + video_id);
     xhttp.send();
@@ -35,60 +50,53 @@ function getTranscript(){
 
 
 function startLoop(){
-    if(flag == false){
-        document.getElementById("actions-inner").append(speedText);
-        flag = true;
-        var vid = document.getElementsByTagName('video')[0];
-        var ytplayer = document.getElementsByClassName('video-stream')[0];
-        var time = ytplayer.currentTime;
+    clearInterval(interval);
+    document.getElementById("actions-inner").append(speedText);
+    var ytplayer = document.getElementsByClassName('video-stream')[0];
+    var time = ytplayer.currentTime;
 
-        var curLine = 0;
+    var curLine = 0;
 
-        for(var i = 0; i<transcript.length; i++){
-            if(transcript[i]["start"] <= time && transcript[i]["end"] >= time){
-                curLine = i;
-                break;
-            }
+    for(var i = 0; i<transcript.length; i++){
+        if(transcript[i]["start"] <= time && transcript[i]["end"] >= time){
+            curLine = i;
+            break;
+        }
+    }
+
+    interval = setInterval(function(){
+        time = ytplayer.currentTime;
+        if(time > transcript[curLine]['start']){
+            vid.playbackRate = transcript[curLine]['speed'] * multiplier;
+            document.getElementById("speedLabel").innerHTML ="The current speed is "+ vid.playbackRate;
+        }
+        if(time > transcript[curLine]['end']){
+            if(curLine < transcript.length - 1) curLine++;
+        }
+        if(time < transcript[curLine]['start']){
+            if(curLine > 0) curLine--;     
         }
 
-        interval = setInterval(function(){
-            
-            time = ytplayer.currentTime;
-            if(time > transcript[curLine]['start']){
-                vid.playbackRate = transcript[curLine]['speed'] * multiplier;
-                document.getElementById("speedLabel").innerHTML ="The current speed is "+ vid.playbackRate;
-            }
-            if(time > transcript[curLine]['end']){
-                if(curLine < transcript.length - 1) curLine++;
-            }
-            if(time < transcript[curLine]['start']){
-                if(curLine > 0) curLine--;     
-            }
-
-            if(time < transcript[curLine]['start'] || time > transcript[curLine]['end']){
-                for(var i = 0; i<transcript.length; i++){
-                    if(transcript[i]["start"] <= time && transcript[i]["end"] >= time){
-                        curLine = i;
-                        break;
-                    }
+        if(time < transcript[curLine]['start'] || time > transcript[curLine]['end']){
+            for(var i = 0; i<transcript.length; i++){
+                if(transcript[i]["start"] <= time && transcript[i]["end"] >= time){
+                    curLine = i;
+                    break;
                 }
             }
-        }, 100);
-    }
+        }
+    }, 100);
 }
 function endLoop(){
-    if(flag == true){
-        clearInterval(interval);
-        flag = false;
-        var vid = document.getElementsByTagName('video')[0];
-        var ytplayer = document.getElementsByClassName('video-stream')[0];
-        vid.playbackRate = 1;
-    }
+    clearInterval(interval);
+    var ytplayer = document.getElementsByClassName('video-stream')[0];
+    vid.playbackRate = 1;
 }
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if( request.message === "start" ) {
+            flag = true;
             if(loaded == false){
                 getTranscript();
                 loaded = true;
@@ -100,10 +108,13 @@ chrome.runtime.onMessage.addListener(
             } 
         }
         if( request.message === "end" ) {
+            flag = false;
             if(loaded == false){
                 
             }
-            else endLoop();
+            else {
+                endLoop();
+            }
         }
         if( request.message === "speedUpdate" ) {
             multiplier += request.speed;
@@ -117,4 +128,14 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-console.log("in content script");
+function waitForVideo() {
+    return new Promise((resolve, reject) => {
+      const intervalId = setInterval(() => {
+        if (document.getElementsByTagName('video')[0]) {
+          clearInterval(intervalId);
+          resolve();
+        }
+      }, 500);
+    });
+}
+
