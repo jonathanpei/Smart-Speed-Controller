@@ -8,7 +8,6 @@ var vid;
 speedText.id = "speedLabel";
 document.body.addEventListener("yt-navigate-finish", function(event) {
     waitForVideo().then(()=>{
-        alert('idfk');
         vid = document.getElementsByTagName('video')[0];
         vid.addEventListener('play', function(e) {
             console.log(flag);
